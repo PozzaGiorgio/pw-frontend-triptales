@@ -8,12 +8,12 @@ plugins {
 
 android {
     namespace = "com.example.triptales"
-    compileSdk = 34  // Modificato da 35 a 34 che è l'ultima versione stabile disponibile
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.triptales"
         minSdk = 24
-        targetSdk = 34  // Modificato da 35 a 34 per coerenza
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -33,17 +33,19 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+        // Aggiungiamo un'opzione per evitare problemi con JDK 21
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.4"
+        kotlinCompilerExtensionVersion = "1.5.1"  // Questa versione è compatibile con Kotlin 1.9.0
     }
     packaging {
         resources {
@@ -53,7 +55,10 @@ android {
 }
 
 dependencies {
-    // Core Android dependencies - versioni modificate per utilizzare quelle supportate
+    // Aggiunta per evitare problemi con JDK 21
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
+
+    // Core Android dependencies
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.activity:activity-compose:1.8.1")
@@ -93,13 +98,25 @@ dependencies {
     // Image Loading
     implementation("io.coil-kt:coil-compose:2.5.0")
 
-    // In app/build.gradle.kts sotto dependencies
+    // Google Common
+    implementation("com.google.guava:guava:30.1.1-android")
+
+    // Accompanist Permissions
     implementation("com.google.accompanist:accompanist-permissions:0.32.0")
 
     // Dependency Injection
     implementation("io.insert-koin:koin-android:3.4.0")
     implementation("io.insert-koin:koin-androidx-compose:3.4.0")
-    implementation(libs.androidx.scenecore)
+
+    // Rimuovo la dipendenza problematica
+    // implementation(libs.androidx.scenecore)
+
+    // AR Core (alternativa ufficiale)
+    implementation("com.google.ar:core:1.36.0")
+
+    // Optional: Aggiungi anche Sceneform se hai bisogno di rendering 3D in AR
+    // implementation("com.google.ar.sceneform:core:1.17.1")
+    // implementation("com.google.ar.sceneform:assets:1.17.1")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

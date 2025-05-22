@@ -29,6 +29,7 @@ import androidx.core.content.ContextCompat
 import java.io.File
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
+import com.google.common.util.concurrent.ListenableFuture
 
 @Composable
 fun CameraView(
@@ -106,7 +107,7 @@ fun CameraView(
 private fun takePhoto(
     imageCapture: ImageCapture,
     executor: Executor,
-    context: LocalContext.current,
+    context: android.content.Context,  // Modificato da LocalContext.current
     onImageCaptured: (Uri) -> Unit,
     onError: (ImageCaptureException) -> Unit
 ) {

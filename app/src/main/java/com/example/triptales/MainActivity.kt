@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             TripTalesTheme {
-                TripTalesApp()
+                TripTalesAppContent()
             }
         }
     }
@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun TripTalesAppContent() {
     val navController = rememberNavController()
-    val authRepository: AuthRepository = get()  // Usa la versione compose di get()
+    val authRepository: AuthRepository = get()
 
     // Start destination based on login status
     val startDestination = if (authRepository.isLoggedIn()) {

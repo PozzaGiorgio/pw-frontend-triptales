@@ -47,6 +47,10 @@ interface ApiService {
     @GET("api/posts/")
     suspend fun getPosts(@Query("trip") tripId: Int): List<Post>
 
+    // Aggiungi questo metodo per ottenere un post specifico
+    @GET("api/posts/{id}/")
+    suspend fun getPostById(@Path("id") id: Int): Post
+
     @Multipart
     @POST("api/posts/")
     suspend fun createPost(

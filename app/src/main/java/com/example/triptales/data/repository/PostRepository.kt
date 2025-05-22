@@ -1,5 +1,6 @@
 package com.example.triptales.data.repository
 
+import retrofit2.http.Path
 import android.content.Context
 import com.example.triptales.data.api.ApiService
 import com.example.triptales.data.model.Comment
@@ -18,6 +19,16 @@ class PostRepository(private val apiService: ApiService) {
         return try {
             val posts = apiService.getPosts(tripId)
             Result.success(posts)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // Aggiungi questo nuovo metodo per ottenere un post specifico
+    suspend fun getPostById(postId: Int): Result<Post> {
+        return try {
+            val post = apiService.getPostById(postId)
+            Result.success(post)
         } catch (e: Exception) {
             Result.failure(e)
         }

@@ -1,16 +1,20 @@
 package com.example.triptales.ui.post
 
-
-
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
+import android.location.Location
 import android.net.Uri
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.triptales.data.repository.PostRepository
 import com.example.triptales.util.MLProcessingResult
 import com.example.triptales.util.MlKitService
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -21,7 +25,7 @@ sealed class MlProcessingState {
     object Idle : MlProcessingState()
     object Loading : MlProcessingState()
     data class Success(val result: MLProcessingResult) : MlProcessingState()
-    data  class Error(val message: String) : MlProcessingState()
+    data class Error(val message: String) : MlProcessingState()
 }
 
 // Stati per la creazione di un post
@@ -50,8 +54,6 @@ class CreatePostViewModel(
     private var latitude: Double? = null
     private var longitude: Double? = null
 
-    private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-
     // Variabili per i risultati ML
     private var ocrText: String? = null
     private var translatedText: String? = null
@@ -60,22 +62,48 @@ class CreatePostViewModel(
 
     // Ottiene la posizione attuale
     fun getCurrentLocation(hasPermission: Boolean) {
-        if (!hasPermission) return
+        locationName.value = "Recupero posizione in corso..."
+
+        if (!hasPermission) {
+            locationName.value = "Posizione non disponibile (permesso negato)"
+            return
+        }
 
         viewModelScope.launch {
             try {
-                fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                // Verifica esplicita dei permessi
+                if (ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    locationName.value = "Posizione non disponibile (permesso negato)"
+                    return@launch
+                }
+
+                // Usa getCurrentLocation invece di lastLocation
+                val cancellationToken = CancellationTokenSource()
+                val locationClient = LocationServices.getFusedLocationProviderClient(context)
+
+                locationClient.getCurrentLocation(
+                    Priority.PRIORITY_BALANCED_POWER_ACCURACY,
+                    cancellationToken.token
+                ).addOnSuccessListener { location: Location? ->
                     location?.let {
                         latitude = it.latitude
                         longitude = it.longitude
-
-                        // Ottieni nome località (geocoding)
-                        // Implementazione geocoding qui...
-                        locationName.value = "Current Location" // Placeholder
+                        locationName.value = "Posizione (${it.latitude.toFloat()}, ${it.longitude.toFloat()})"
+                    } ?: run {
+                        locationName.value = "Posizione non disponibile"
                     }
+                }.addOnFailureListener { e ->
+                    locationName.value = "Errore posizione: ${e.message}"
                 }
             } catch (e: Exception) {
-                // Gestione errori
+                locationName.value = "Errore posizione: ${e.message}"
             }
         }
     }
