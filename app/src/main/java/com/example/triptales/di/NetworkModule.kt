@@ -10,7 +10,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-// NetworkModule.kt
 val networkModule = module {
     single { provideOkHttpClient(androidContext()) }
     single { provideRetrofit(get()) }
@@ -28,6 +27,7 @@ private fun provideOkHttpClient(context: Context): OkHttpClient {
                 .getString("token", null)
 
             if (token != null) {
+                // Usa Token invece di JWT
                 request.addHeader("Authorization", "Token $token")
             }
 
@@ -40,7 +40,8 @@ private fun provideOkHttpClient(context: Context): OkHttpClient {
 
 private fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
     return Retrofit.Builder()
-        .baseUrl("http://10.0.2.2:8000/") // localhost for emulator
+        // Sostituisci con l'URL che il tuo amico ti ha dato da ngrok
+        .baseUrl("https://3166-95-251-223-155.ngrok-free.app/")
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build()

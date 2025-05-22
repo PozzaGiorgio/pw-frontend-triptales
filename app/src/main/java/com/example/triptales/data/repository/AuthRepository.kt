@@ -16,7 +16,7 @@ class AuthRepository(
     suspend fun login(username: String, password: String): Result<Unit> {
         return try {
             val response = apiService.login(LoginRequest(username, password))
-            tokenPrefs.edit().putString("token", response.token).apply()
+            tokenPrefs.edit().putString("token", response.auth_token).apply()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

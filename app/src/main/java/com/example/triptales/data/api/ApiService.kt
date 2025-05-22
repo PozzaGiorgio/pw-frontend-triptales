@@ -18,9 +18,8 @@ import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-// ApiService.kt
 interface ApiService {
-    // Auth
+    // Auth - Usa Djoser endpoints
     @POST("auth/token/login/")
     suspend fun login(@Body loginRequest: LoginRequest): LoginResponse
 
@@ -47,7 +46,6 @@ interface ApiService {
     @GET("api/posts/")
     suspend fun getPosts(@Query("trip") tripId: Int): List<Post>
 
-    // Aggiungi questo metodo per ottenere un post specifico
     @GET("api/posts/{id}/")
     suspend fun getPostById(@Path("id") id: Int): Post
 
@@ -76,7 +74,7 @@ interface ApiService {
     ): Comment
 
     // User and Badges
-    @GET("api/users/me/")
+    @GET("auth/users/me/")
     suspend fun getCurrentUser(): User
 
     @GET("api/user-badges/")
