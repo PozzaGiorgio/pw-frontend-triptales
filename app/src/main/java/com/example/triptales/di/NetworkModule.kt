@@ -33,15 +33,31 @@ private fun provideOkHttpClient(context: Context): OkHttpClient {
             val token = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
                 .getString("token", null)
 
+            // Aggiungi headers comuni
+            request.addHeader("Accept", "application/json")
+            request.addHeader("Content-Type", "application/json")
+
             if (token != null) {
                 // Usa Token invece di JWT
                 request.addHeader("Authorization", "Token $token")
+                android.util.Log.d("NetworkModule", "Adding auth token to request")
+            } else {
+                android.util.Log.d("NetworkModule", "No token found for request")
             }
 
-            chain.proceed(request.build())
+            val response = chain.proceed(request.build())
+
+            // Log della risposta per debug
+            android.util.Log.d("NetworkModule", "Response code: ${response.code}")
+            if (!response.isSuccessful) {
+                android.util.Log.e("NetworkModule", "Request failed: ${response.message}")
+            }
+
+            response
         }
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
         .build()
 }
 

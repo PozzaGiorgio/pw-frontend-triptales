@@ -26,9 +26,16 @@ interface ApiService {
     @POST("auth/users/")
     suspend fun register(@Body registerRequest: RegisterRequest)
 
-    // Trips
+    // User info
+    @GET("auth/users/me/")
+    suspend fun getCurrentUser(): User
+
+    @GET("api/user-badges/")
+    suspend fun getUserBadges(): List<Badge>
+
+    // Trips - AGGIORNATO con gestione errori migliore
     @GET("api/trips/")
-    suspend fun getTrips(): List<Trip>
+    suspend fun getTrips(): List<Trip>  // Assicurati che ritorni List<Trip>
 
     @POST("api/trips/")
     suspend fun createTrip(@Body trip: Trip): Trip
@@ -42,9 +49,9 @@ interface ApiService {
     @POST("api/trips/{id}/leave/")
     suspend fun leaveTrip(@Path("id") id: Int)
 
-    // Posts
+    // Posts - Con query parameter per filtrare per trip
     @GET("api/posts/")
-    suspend fun getPosts(@Query("trip") tripId: Int): List<Post>
+    suspend fun getPosts(@Query("trip") tripId: Int? = null): List<Post>
 
     @GET("api/posts/{id}/")
     suspend fun getPostById(@Path("id") id: Int): Post
@@ -72,11 +79,4 @@ interface ApiService {
         @Path("id") id: Int,
         @Body content: Map<String, String>
     ): Comment
-
-    // User and Badges
-    @GET("auth/users/me/")
-    suspend fun getCurrentUser(): User
-
-    @GET("api/user-badges/")
-    suspend fun getUserBadges(): List<Badge>
 }
