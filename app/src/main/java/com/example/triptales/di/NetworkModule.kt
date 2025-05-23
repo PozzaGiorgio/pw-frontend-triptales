@@ -1,3 +1,5 @@
+// In app/src/main/java/com/example/triptales/di/NetworkModule.kt
+
 package com.example.triptales.di
 
 import android.content.Context
@@ -10,9 +12,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-// 🔧 AGGIUNGI QUESTA SEZIONE CONSTANTS
+// 🔧 CAMBIA QUESTA SEZIONE PER IL TUO IP LOCALE
 object Constants {
-    const val BASE_URL = "https://8a20-95-251-223-155.ngrok-free.app"  // <-- URL di ngrok dalla tua schermata
+    const val BASE_URL = "http://192.168.1.150:8000/"  // <-- Il tuo IP locale
 }
 
 val networkModule = module {
@@ -45,8 +47,8 @@ private fun provideOkHttpClient(context: Context): OkHttpClient {
 
 private fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
     return Retrofit.Builder()
-        // 🔧 USA CONSTANTS INVECE DI URL HARDCODED
-        .baseUrl("${Constants.BASE_URL}/")
+        // 🔧 USA IL TUO IP LOCALE
+        .baseUrl("${Constants.BASE_URL}")
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
