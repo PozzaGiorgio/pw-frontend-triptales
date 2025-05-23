@@ -10,6 +10,11 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
+// 🔧 AGGIUNGI QUESTA SEZIONE CONSTANTS
+object Constants {
+    const val BASE_URL = "https://8a20-95-251-223-155.ngrok-free.app"  // <-- URL di ngrok dalla tua schermata
+}
+
 val networkModule = module {
     single { provideOkHttpClient(androidContext()) }
     single { provideRetrofit(get()) }
@@ -40,8 +45,8 @@ private fun provideOkHttpClient(context: Context): OkHttpClient {
 
 private fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
     return Retrofit.Builder()
-        // Sostituisci con l'URL che il tuo amico ti ha dato da ngrok
-        .baseUrl("https://3166-95-251-223-155.ngrok-free.app/")
+        // 🔧 USA CONSTANTS INVECE DI URL HARDCODED
+        .baseUrl("${Constants.BASE_URL}/")
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
