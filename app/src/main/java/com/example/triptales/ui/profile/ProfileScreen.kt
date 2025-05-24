@@ -40,8 +40,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.triptales.data.model.Badge
@@ -371,42 +373,66 @@ fun BadgeItem(badge: Badge) {
         modifier = Modifier.padding(8.dp)
     ) {
         // 🔧 MIGLIORATO: Gestione migliore delle icone dei badge
-        if (!badge.icon.isNullOrBlank()) {
-            AsyncImage(
-                model = badge.icon,
-                contentDescription = badge.name,
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(CircleShape)
-                    .background(
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                        shape = CircleShape
+        Card(
+            modifier = Modifier.size(72.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                if (!badge.icon.isNullOrBlank()) {
+                    if (badge.icon.startsWith("http")) {
+                        // URL immagine
+                        AsyncImage(
+                            model = badge.icon,
+                            contentDescription = badge.name,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        // Emoji o testo
+                        Text(
+                            text = badge.icon,
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontSize = 24.sp
+                        )
+                    }
+                } else {
+                    // Fallback icon
+                    Icon(
+                        Icons.Default.Person,
+                        contentDescription = badge.name,
+                        modifier = Modifier.size(32.dp),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
-                    .padding(8.dp)
-            )
-        } else {
-            // Fallback icon se l'immagine non è disponibile
-            Icon(
-                Icons.Default.Person,
-                contentDescription = badge.name,
-                modifier = Modifier
-                    .size(64.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                        shape = CircleShape
-                    )
-                    .padding(16.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
+                }
+            }
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         Text(
             text = badge.name ?: "Badge",
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center,
-            maxLines = 2
+            maxLines = 2,
+            fontWeight = FontWeight.Bold
+        )
+
+        // 🔧 AGGIUNTO: Mostra anche la descrizione
+        Text(
+            text = badge.description ?: "",
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+            fontSize = 10.sp
         )
     }
 }
