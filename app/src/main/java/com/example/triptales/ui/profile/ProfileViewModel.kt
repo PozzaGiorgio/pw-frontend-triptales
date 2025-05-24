@@ -38,9 +38,12 @@ class ProfileViewModel(
     fun loadUserProfile() {
         viewModelScope.launch {
             try {
+                android.util.Log.d("ProfileViewModel", "Loading user profile...")
                 val user = apiService.getCurrentUser()
+                android.util.Log.d("ProfileViewModel", "User loaded: ${user.username}")
                 _userState.value = UserState.Success(user)
             } catch (e: Exception) {
+                android.util.Log.e("ProfileViewModel", "Failed to load user profile", e)
                 _userState.value = UserState.Error(e.message ?: "Failed to load user profile")
             }
         }
@@ -49,15 +52,25 @@ class ProfileViewModel(
     fun loadUserBadges() {
         viewModelScope.launch {
             try {
-                val badges = apiService.getUserBadges()
+                android.util.Log.d("ProfileViewModel", "Loading user badges...")
+
+                // 🔧 FIX: Ora gestiamo la risposta paginata
+                val paginatedResponse = apiService.getUserBadgesPaginated()
+                val badges = paginatedResponse.results
+
+                android.util.Log.d("ProfileViewModel", "Badges loaded: ${badges.size} badges")
+                android.util.Log.d("ProfileViewModel", "Total badges count: ${paginatedResponse.count}")
+
                 _badgesState.value = BadgesState.Success(badges)
             } catch (e: Exception) {
+                android.util.Log.e("ProfileViewModel", "Failed to load badges", e)
                 _badgesState.value = BadgesState.Error(e.message ?: "Failed to load badges")
             }
         }
     }
 
     fun logout() {
+        android.util.Log.d("ProfileViewModel", "User logging out...")
         authRepository.logout()
     }
 }

@@ -8,7 +8,7 @@ import com.example.triptales.data.model.Trip
 import com.example.triptales.data.model.Post
 import com.example.triptales.data.model.Comment
 import com.example.triptales.data.model.Badge
-import com.example.triptales.data.repository.PaginatedResponse  // 🔧 AGGIUNGI QUESTO IMPORT
+import com.example.triptales.data.repository.PaginatedResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body
@@ -31,8 +31,9 @@ interface ApiService {
     @GET("auth/users/me/")
     suspend fun getCurrentUser(): User
 
+    // 🔧 FIX: Ora restituisce PaginatedResponse invece di List
     @GET("api/user-badges/")
-    suspend fun getUserBadges(): List<Badge>
+    suspend fun getUserBadgesPaginated(): PaginatedResponse<Badge>
 
     // Trips
     @GET("api/trips/")
@@ -50,7 +51,7 @@ interface ApiService {
     @POST("api/trips/{id}/leave/")
     suspend fun leaveTrip(@Path("id") id: Int)
 
-    // Posts - 🔧 SEZIONE AGGIORNATA
+    // Posts
     @GET("api/posts/")
     suspend fun getPostsPaginated(@Query("trip") tripId: Int? = null): PaginatedResponse<Post>
 

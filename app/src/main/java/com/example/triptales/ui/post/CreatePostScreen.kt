@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -70,13 +71,24 @@ fun CreatePostScreen(navController: NavHostController, tripId: Int) {
     val createPostState by viewModel.createPostState.collectAsState()
 
     LaunchedEffect(Unit) {
+        // 🔧 MIGLIORAMENTO: Richiedi sempre i permessi
         if (!cameraPermissionState.status.isGranted) {
             cameraPermissionState.launchPermissionRequest()
         }
         if (!locationPermissionState.status.isGranted) {
             locationPermissionState.launchPermissionRequest()
         }
+
+        // 🔧 IMPORTANTE: Ottieni sempre la posizione quando i permessi sono concessi
         viewModel.getCurrentLocation(locationPermissionState.status.isGranted)
+    }
+
+    // 🔧 AGGIUNTO: Reagisce ai cambiamenti dello stato dei permessi
+    LaunchedEffect(locationPermissionState.status.isGranted) {
+        android.util.Log.d("CreatePostScreen", "Location permission changed: ${locationPermissionState.status.isGranted}")
+        if (locationPermissionState.status.isGranted) {
+            viewModel.getCurrentLocation(true)
+        }
     }
 
     Scaffold(
@@ -109,6 +121,57 @@ fun CreatePostScreen(navController: NavHostController, tripId: Int) {
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState())
             ) {
+                // 🔧 AGGIUNTO: Mostra stato dei permessi se non concessi
+                if (!locationPermissionState.status.isGranted) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer
+                        )
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.LocationOn,
+                                    contentDescription = "Location",
+                                    tint = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    "📍 Location Permission Required",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Text(
+                                "Grant location permission to save your memory's location and see it on the map",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Button(
+                                onClick = { locationPermissionState.launchPermissionRequest() },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary
+                                )
+                            ) {
+                                Text("Grant Permission")
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
                 // Image preview
                 capturedImageUri.value?.let { uri ->
                     Image(
@@ -255,15 +318,63 @@ fun CreatePostScreen(navController: NavHostController, tripId: Int) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Location info
-                viewModel.locationName.value?.let { locationName ->
+                // 🔧 MIGLIORATO: Location info con stato migliore
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (locationPermissionState.status.isGranted) {
+                            MaterialTheme.colorScheme.primaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.errorContainer
+                        }
+                    )
+                ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.LocationOn, contentDescription = "Location")
+                        Icon(
+                            Icons.Default.LocationOn,
+                            contentDescription = "Location",
+                            tint = if (locationPermissionState.status.isGranted) {
+                                MaterialTheme.colorScheme.onPrimaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.onErrorContainer
+                            }
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(locationName)
+
+                        Column {
+                            Text(
+                                text = if (locationPermissionState.status.isGranted) {
+                                    "📍 Location"
+                                } else {
+                                    "❌ Location Disabled"
+                                },
+                                style = MaterialTheme.typography.titleSmall,
+                                color = if (locationPermissionState.status.isGranted) {
+                                    MaterialTheme.colorScheme.onPrimaryContainer
+                                } else {
+                                    MaterialTheme.colorScheme.onErrorContainer
+                                }
+                            )
+
+                            Text(
+                                text = viewModel.locationName.value ?: if (locationPermissionState.status.isGranted) {
+                                    "Getting location..."
+                                } else {
+                                    "Enable location to save GPS coordinates"
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = if (locationPermissionState.status.isGranted) {
+                                    MaterialTheme.colorScheme.onPrimaryContainer
+                                } else {
+                                    MaterialTheme.colorScheme.onErrorContainer
+                                }
+                            )
+                        }
                     }
                 }
 
@@ -273,6 +384,8 @@ fun CreatePostScreen(navController: NavHostController, tripId: Int) {
                 Button(
                     onClick = {
                         capturedImageUri.value?.let { uri ->
+                            android.util.Log.d("CreatePostScreen", "Creating post with location permission: ${locationPermissionState.status.isGranted}")
+                            android.util.Log.d("CreatePostScreen", "Location name: ${viewModel.locationName.value}")
                             viewModel.createPost(
                                 tripId = tripId,
                                 content = content,
@@ -284,6 +397,16 @@ fun CreatePostScreen(navController: NavHostController, tripId: Int) {
                     enabled = content.isNotBlank() && capturedImageUri.value != null
                 ) {
                     Text("Share Memory")
+                }
+
+                // 🔧 AGGIUNTO: Informazione sui permessi sotto al pulsante
+                if (!locationPermissionState.status.isGranted) {
+                    Text(
+                        text = "💡 Tip: Enable location to see your memory on the trip map!",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
                 }
 
                 // Handle create post state
