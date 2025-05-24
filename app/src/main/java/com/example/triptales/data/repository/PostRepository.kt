@@ -14,17 +14,26 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.File
 
+// Data class per gestire la risposta paginata del backend Django
+data class PaginatedResponse<T>(
+    val count: Int,
+    val next: String?,
+    val previous: String?,
+    val results: List<T>
+)
+
 class PostRepository(private val apiService: ApiService) {
     suspend fun getPosts(tripId: Int): Result<List<Post>> {
         return try {
-            val posts = apiService.getPosts(tripId)
-            Result.success(posts)
+            // 🔧 MODIFICA: Ora gestiamo la risposta paginata dal backend
+            val response = apiService.getPostsPaginated(tripId)
+            Result.success(response.results)  // Prendiamo solo i results dalla risposta paginata
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    // Aggiungi questo nuovo metodo per ottenere un post specifico
+    // Metodo per ottenere un post specifico
     suspend fun getPostById(postId: Int): Result<Post> {
         return try {
             val post = apiService.getPostById(postId)

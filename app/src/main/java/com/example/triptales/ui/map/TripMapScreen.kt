@@ -22,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -32,11 +31,12 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.example.triptales.ui.map.TripMapViewModel
 import com.example.triptales.ui.map.PostsState
+import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)  // Aggiungi questa annotazione
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TripMapScreen(navController: NavHostController, tripId: Int) {
-    val viewModel: TripMapViewModel = viewModel()
+    val viewModel: TripMapViewModel = koinViewModel()
     val postsState by viewModel.postsState.collectAsState()
 
     LaunchedEffect(tripId) {
@@ -82,12 +82,20 @@ fun TripMapScreen(navController: NavHostController, tripId: Int) {
                     filteredPosts.forEach { post ->
                         post.latitude?.let { lat ->
                             post.longitude?.let { lng ->
+                                // 🔧 CORREZIONE: Gestisci il content nullable
+                                val content = post.content ?: ""
+                                val snippet = if (content.length > 50) {
+                                    content.take(50) + "..."
+                                } else {
+                                    content
+                                }
+
                                 Marker(
                                     state = MarkerState(
                                         position = LatLng(lat, lng)
                                     ),
                                     title = post.locationName ?: "Memory",
-                                    snippet = post.content.take(50) + if (post.content.length > 50) "..." else "",
+                                    snippet = snippet,
                                     onClick = {
                                         navController.navigate("post/${post.id}")
                                         true

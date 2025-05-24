@@ -38,13 +38,10 @@ import androidx.navigation.NavHostController
 import com.example.triptales.data.model.Trip
 import org.koin.androidx.compose.koinViewModel
 
-// Se stai usando la versione più recente di Material 3, potresti dover aggiungere questo import per TopAppBar
-// import androidx.compose.material3.TopAppBarDefaults
-
-@OptIn(ExperimentalMaterial3Api::class)  // Aggiunta questa annotazione per risolvere l'errore
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TripsScreen(navController: NavHostController) {
-    val viewModel: TripsViewModel = koinViewModel()  // Cambiato da viewModel() a koinViewModel()
+    val viewModel: TripsViewModel = koinViewModel()
     val tripsState by viewModel.tripsState.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -54,7 +51,7 @@ fun TripsScreen(navController: NavHostController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("My Trips") },
+                title = { Text("All Trips") },  // 🔧 Cambiato da "My Trips" a "All Trips"
                 actions = {
                     IconButton(onClick = { navController.navigate("profile") }) {
                         Icon(Icons.Default.Person, contentDescription = "Profile")
@@ -81,18 +78,27 @@ fun TripsScreen(navController: NavHostController) {
             }
             is TripsState.Success -> {
                 val trips = state.trips
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                ) {
-                    items(trips) { trip ->
-                        TripCard(
-                            trip = trip,
-                            onClick = {
-                                navController.navigate("trip/${trip.id}")
-                            }
-                        )
+                if (trips.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("No trips available. Create the first one!")
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding)
+                    ) {
+                        items(trips) { trip ->
+                            TripCard(
+                                trip = trip,
+                                onClick = {
+                                    navController.navigate("trip/${trip.id}")
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -122,12 +128,12 @@ fun TripCard(trip: Trip, onClick: () -> Unit) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = trip.name,
+                text = trip.name ?: "Untitled Trip",  // 🔧 Gestisce null
                 style = MaterialTheme.typography.titleLarge
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = trip.description,
+                text = trip.description ?: "No description",  // 🔧 Gestisce null
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
@@ -138,11 +144,11 @@ fun TripCard(trip: Trip, onClick: () -> Unit) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Created by: ${trip.createdBy.username}",
+                    text = "Created by: ${trip.createdBy.username ?: "Unknown"}",  // 🔧 Gestisce null
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
-                    text = "${trip.startDate} - ${trip.endDate}",
+                    text = "${trip.startDate ?: "Unknown"} - ${trip.endDate ?: "Unknown"}",  // 🔧 Gestisce null
                     style = MaterialTheme.typography.bodySmall
                 )
             }

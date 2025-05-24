@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit
 
 // 🔧 CAMBIA QUESTA SEZIONE PER IL TUO IP LOCALE
 object Constants {
-    const val BASE_URL = "http://192.168.1.150:8000/"  // <-- Il tuo IP locale
+    const val BASE_URL = "http://172.20.10.8:8000/"  // <-- Il tuo IP locale
 }
 
 val networkModule = module {

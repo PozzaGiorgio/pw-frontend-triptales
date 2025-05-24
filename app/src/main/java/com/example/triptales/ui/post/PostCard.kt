@@ -46,15 +46,17 @@ fun PostCard(
         Column {
             // Immagine del post (se presente)
             post.image?.let { imageUrl ->
-                AsyncImage(
-                    model = imageUrl,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(180.dp)
-                        .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)),
-                    contentScale = ContentScale.Crop
-                )
+                if (imageUrl.isNotBlank()) {  // 🔧 Verifica che non sia vuota
+                    AsyncImage(
+                        model = imageUrl,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp)
+                            .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
 
             Column(modifier = Modifier.padding(16.dp)) {
@@ -68,12 +70,12 @@ fun PostCard(
 
                     Column {
                         Text(
-                            text = post.user.username,
+                            text = post.user.username ?: "Unknown User",  // 🔧 Gestisce null
                             style = MaterialTheme.typography.titleMedium
                         )
 
                         Text(
-                            text = post.createdAt,
+                            text = "Posted on ${post.createdAt ?: "Unknown Date"}",  // 🔧 Gestisce null
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
@@ -83,7 +85,7 @@ fun PostCard(
 
                 // Contenuto del post
                 Text(
-                    text = post.content,
+                    text = post.content ?: "",  // 🔧 QUESTA È LA RIGA 75 - Gestisce null
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis
@@ -91,23 +93,25 @@ fun PostCard(
 
                 // Posizione (se presente)
                 post.locationName?.let { location ->
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.Default.LocationOn,
-                            contentDescription = "Location",
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
+                    if (location.isNotBlank()) {  // 🔧 Verifica che non sia vuota
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.LocationOn,
+                                contentDescription = "Location",
+                                modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
 
-                        Spacer(modifier = Modifier.width(2.dp))
+                            Spacer(modifier = Modifier.width(2.dp))
 
-                        Text(
-                            text = location,
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                            Text(
+                                text = location,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
                     }
                 }
 
@@ -150,12 +154,14 @@ fun PostCard(
 
                 // AI Caption se presente
                 post.smartCaption?.let { caption ->
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "🤖 $caption",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
+                    if (caption.isNotBlank()) {  // 🔧 Verifica che non sia vuota
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "🤖 $caption",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
                 }
             }
         }

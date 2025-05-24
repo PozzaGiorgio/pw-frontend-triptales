@@ -108,15 +108,17 @@ fun PostDetailScreen(navController: NavHostController, postId: Int) {
                         // Immagine del post
                         item {
                             post.image?.let { imageUrl ->
-                                AsyncImage(
-                                    model = imageUrl,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(250.dp)
-                                        .clip(RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp)),
-                                    contentScale = ContentScale.Crop
-                                )
+                                if (imageUrl.isNotBlank()) {  // 🔧 Verifica che non sia vuota
+                                    AsyncImage(
+                                        model = imageUrl,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(250.dp)
+                                            .clip(RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp)),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
                             }
 
                             Spacer(modifier = Modifier.height(16.dp))
@@ -126,12 +128,12 @@ fun PostDetailScreen(navController: NavHostController, postId: Int) {
                         item {
                             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                                 Text(
-                                    text = post.user.username,
+                                    text = post.user.username ?: "Unknown User",  // 🔧 Gestisce null
                                     style = MaterialTheme.typography.titleMedium
                                 )
 
                                 Text(
-                                    text = "Posted on ${post.createdAt}",
+                                    text = "Posted on ${post.createdAt ?: "Unknown Date"}",  // 🔧 Gestisce null
                                     style = MaterialTheme.typography.bodySmall
                                 )
 
@@ -139,17 +141,19 @@ fun PostDetailScreen(navController: NavHostController, postId: Int) {
 
                                 // Contenuto del post
                                 Text(
-                                    text = post.content,
+                                    text = post.content ?: "No content",  // 🔧 Gestisce null
                                     style = MaterialTheme.typography.bodyLarge
                                 )
 
                                 // Info posizione
                                 post.locationName?.let { location ->
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    Text(
-                                        text = "📍 $location",
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
+                                    if (location.isNotBlank()) {  // 🔧 Verifica che non sia vuota
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(
+                                            text = "📍 $location",
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    }
                                 }
 
                                 // AI results
@@ -314,17 +318,17 @@ fun CommentItem(comment: Comment) {
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Text(
-            text = comment.user.username,
+            text = comment.user.username ?: "Unknown User",  // 🔧 Gestisce null
             style = MaterialTheme.typography.titleSmall
         )
 
         Text(
-            text = comment.content,
+            text = comment.content ?: "",  // 🔧 Gestisce null
             style = MaterialTheme.typography.bodyMedium
         )
 
         Text(
-            text = comment.createdAt,
+            text = comment.createdAt ?: "Unknown Date",  // 🔧 Gestisce null
             style = MaterialTheme.typography.bodySmall
         )
 

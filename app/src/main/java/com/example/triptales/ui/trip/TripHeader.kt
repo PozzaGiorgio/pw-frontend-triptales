@@ -1,5 +1,6 @@
 package com.example.triptales.ui.trip
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,7 +37,7 @@ fun TripHeader(trip: Trip, onJoinClick: () -> Unit) {
         ) {
             // Titolo del viaggio
             Text(
-                text = trip.name,
+                text = trip.name ?: "Untitled Trip",
                 style = MaterialTheme.typography.headlineMedium
             )
 
@@ -44,7 +45,7 @@ fun TripHeader(trip: Trip, onJoinClick: () -> Unit) {
 
             // Date del viaggio
             Text(
-                text = "${trip.startDate} - ${trip.endDate}",
+                text = "${trip.startDate ?: "Unknown"} - ${trip.endDate ?: "Unknown"}",
                 style = MaterialTheme.typography.bodyMedium
             )
 
@@ -52,7 +53,7 @@ fun TripHeader(trip: Trip, onJoinClick: () -> Unit) {
 
             // Descrizione del viaggio
             Text(
-                text = trip.description,
+                text = trip.description ?: "No description available",
                 style = MaterialTheme.typography.bodyLarge
             )
 
@@ -67,7 +68,7 @@ fun TripHeader(trip: Trip, onJoinClick: () -> Unit) {
                 Spacer(modifier = Modifier.size(8.dp))
 
                 Text(
-                    text = "Created by: ${trip.createdBy.username}",
+                    text = "Created by: ${trip.createdBy.username ?: "Unknown User"}",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -99,6 +100,7 @@ fun TripHeader(trip: Trip, onJoinClick: () -> Unit) {
                         modifier = Modifier
                             .size(32.dp)
                             .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
                             .align(Alignment.CenterVertically),
                         contentAlignment = Alignment.Center
                     ) {
@@ -109,23 +111,31 @@ fun TripHeader(trip: Trip, onJoinClick: () -> Unit) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Pulsante per unirsi al viaggio
+            // 🔧 MIGLIORAMENTO: Pulsante più informativo
             Button(
                 onClick = onJoinClick,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Join Trip")
+                Text("Join This Trip")
             }
+
+            // 🔧 AGGIUNTO: Testo informativo
+            Text(
+                text = "Click 'Join This Trip' to become a member and see posts from this trip",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                modifier = Modifier.padding(top = 8.dp)
+            )
         }
     }
 }
 
 @Composable
 fun UserAvatar(user: User, modifier: Modifier = Modifier.size(40.dp)) {
-    if (user.profileImage != null) {
+    if (user.profileImage != null && user.profileImage.isNotBlank()) {  // 🔧 Verifica che non sia vuota
         AsyncImage(
             model = user.profileImage,
-            contentDescription = user.username,
+            contentDescription = user.username ?: "User Avatar",  // 🔧 Gestisce null
             modifier = modifier.clip(CircleShape),
             contentScale = ContentScale.Crop
         )
@@ -133,10 +143,17 @@ fun UserAvatar(user: User, modifier: Modifier = Modifier.size(40.dp)) {
         // Placeholder per utenti senza immagine
         Box(
             modifier = modifier
-                .clip(CircleShape),
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),  // 🔧 Aggiunto background
             contentAlignment = Alignment.Center
         ) {
-            Text(user.username.first().toString())
+            val username = user.username ?: "U"  // 🔧 Gestisce null
+            val firstChar = if (username.isNotEmpty()) username.first().toString() else "U"  // 🔧 Gestisce stringa vuota
+            Text(
+                text = firstChar,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }

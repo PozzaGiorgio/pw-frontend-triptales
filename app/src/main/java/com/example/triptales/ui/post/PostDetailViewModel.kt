@@ -40,10 +40,21 @@ class PostDetailViewModel(private val postRepository: PostRepository) : ViewMode
                 onSuccess = { comment ->
                     _commentState.value = CommentState.Success(comment)
 
-                    // Aggiorna lo stato del post con il nuovo commento
-                    val currentPost = (_postState.value as? PostDetailState.Success)?.post ?: return@fold
-                    val updatedComments = currentPost.comments + comment
-                    _postState.value = PostDetailState.Success(currentPost.copy(comments = updatedComments))
+                    // 🔧 MODIFICA: Gestisce il caso di currentPost null o con campi null
+                    val currentPostState = _postState.value
+                    if (currentPostState is PostDetailState.Success) {
+                        val currentPost = currentPostState.post
+                        try {
+                            // Aggiorna lo stato del post con il nuovo commento
+                            val updatedComments = currentPost.comments + comment
+                            val updatedPost = currentPost.copy(comments = updatedComments)
+                            _postState.value = PostDetailState.Success(updatedPost)
+                        } catch (e: Exception) {
+                            // Se la copia fallisce, ricarica il post dal server
+                            android.util.Log.e("PostDetailViewModel", "Failed to update post with new comment, reloading", e)
+                            getPostDetails(postId)
+                        }
+                    }
                 },
                 onFailure = { e ->
                     _commentState.value = CommentState.Error(e.message ?: "Failed to add comment")

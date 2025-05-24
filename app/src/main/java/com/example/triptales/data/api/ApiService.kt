@@ -8,6 +8,7 @@ import com.example.triptales.data.model.Trip
 import com.example.triptales.data.model.Post
 import com.example.triptales.data.model.Comment
 import com.example.triptales.data.model.Badge
+import com.example.triptales.data.repository.PaginatedResponse  // 🔧 AGGIUNGI QUESTO IMPORT
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body
@@ -33,9 +34,9 @@ interface ApiService {
     @GET("api/user-badges/")
     suspend fun getUserBadges(): List<Badge>
 
-    // Trips - AGGIORNATO con gestione errori migliore
+    // Trips
     @GET("api/trips/")
-    suspend fun getTrips(): List<Trip>  // Assicurati che ritorni List<Trip>
+    suspend fun getTrips(): List<Trip>
 
     @POST("api/trips/")
     suspend fun createTrip(@Body trip: Trip): Trip
@@ -49,9 +50,9 @@ interface ApiService {
     @POST("api/trips/{id}/leave/")
     suspend fun leaveTrip(@Path("id") id: Int)
 
-    // Posts - Con query parameter per filtrare per trip
+    // Posts - 🔧 SEZIONE AGGIORNATA
     @GET("api/posts/")
-    suspend fun getPosts(@Query("trip") tripId: Int? = null): List<Post>
+    suspend fun getPostsPaginated(@Query("trip") tripId: Int? = null): PaginatedResponse<Post>
 
     @GET("api/posts/{id}/")
     suspend fun getPostById(@Path("id") id: Int): Post

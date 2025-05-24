@@ -32,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.triptales.data.model.Trip
 import com.example.triptales.data.model.User
@@ -40,6 +39,7 @@ import com.example.triptales.data.repository.TripRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 // Stati per la creazione di un viaggio
 sealed class CreateTripState {
@@ -92,7 +92,7 @@ class CreateTripViewModel(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateTripScreen(navController: NavHostController) {
-    val viewModel: CreateTripViewModel = viewModel()
+    val viewModel: CreateTripViewModel = koinViewModel()  // 🔧 CAMBIATO DA viewModel() A koinViewModel()
     val createTripState by viewModel.createTripState.collectAsState()
 
     var tripName by remember { mutableStateOf("") }
@@ -180,7 +180,7 @@ fun CreateTripScreen(navController: NavHostController) {
             }
 
             // Handle create trip state
-            when (val state = createTripState) {  // Cambiato qui: usa una variabile locale
+            when (val state = createTripState) {
                 is CreateTripState.Success -> {
                     LaunchedEffect(Unit) {
                         navController.navigate("trips") {
@@ -190,7 +190,7 @@ fun CreateTripScreen(navController: NavHostController) {
                 }
                 is CreateTripState.Error -> {
                     Text(
-                        text = state.message,  // Ora usa state.message invece di createTripState.message
+                        text = state.message,
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )

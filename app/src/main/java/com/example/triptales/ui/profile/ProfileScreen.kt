@@ -36,7 +36,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.triptales.data.model.Badge
@@ -45,7 +44,7 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(navController: NavHostController) {
-    val viewModel: ProfileViewModel = koinViewModel()  // Usa koinViewModel invece di viewModel()
+    val viewModel: ProfileViewModel = koinViewModel()
     val userState by viewModel.userState.collectAsState()
     val badgesState by viewModel.badgesState.collectAsState()
 
@@ -97,7 +96,7 @@ fun ProfileScreen(navController: NavHostController) {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             // Profile picture
-                            if (user.profileImage != null) {
+                            if (user.profileImage != null && user.profileImage.isNotBlank()) {  // 🔧 Verifica che non sia vuota
                                 AsyncImage(
                                     model = user.profileImage,
                                     contentDescription = "Profile Picture",
@@ -128,12 +127,12 @@ fun ProfileScreen(navController: NavHostController) {
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Text(
-                                text = user.username,
+                                text = user.username ?: "Unknown User",  // 🔧 Gestisce null
                                 style = MaterialTheme.typography.headlineMedium
                             )
 
                             Text(
-                                text = user.email,
+                                text = user.email ?: "No email",  // 🔧 Gestisce null
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                             )
